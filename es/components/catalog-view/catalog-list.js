@@ -19,7 +19,7 @@ import ContentTitle from '../style/content-title';
 import * as SharedStyle from '../../shared-style';
 
 var containerStyle = {
-  position: 'fixed',
+  position: 'absolute',
   width: 'calc( 100% - 51px)',
   height: 'calc( 100% - 20px)',
   backgroundColor: '#FFF',
@@ -124,7 +124,6 @@ var CatalogList = function (_Component) {
   }, {
     key: 'matcharray',
     value: function matcharray(text) {
-
       var array = this.state.elements.concat(this.flattenCategories(this.state.categories));
 
       var filtered = [];
@@ -146,7 +145,6 @@ var CatalogList = function (_Component) {
   }, {
     key: 'select',
     value: function select(element) {
-
       switch (element.prototype) {
         case 'lines':
           this.context.linesActions.selectToolDrawingLine(element.name);
@@ -176,7 +174,6 @@ var CatalogList = function (_Component) {
       var breadcrumbComponent = null;
 
       if (page !== 'root') {
-
         var breadcrumbsNames = [];
 
         this.props.state.catalog.path.forEach(function (pathName) {
@@ -225,9 +222,13 @@ var CatalogList = function (_Component) {
             { style: searchText },
             this.context.translator.t('Search Element')
           ),
-          React.createElement('input', { type: 'text', style: searchInput, onChange: function onChange(e) {
+          React.createElement('input', {
+            type: 'text',
+            style: searchInput,
+            onChange: function onChange(e) {
               _this2.matcharray(e.target.value);
-            } })
+            }
+          })
         ),
         selectedHistory.size ? React.createElement(
           'div',

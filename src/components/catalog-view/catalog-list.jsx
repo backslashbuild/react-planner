@@ -9,15 +9,15 @@ import ContentTitle from '../style/content-title';
 import * as SharedStyle from '../../shared-style';
 
 const containerStyle = {
-  position: 'fixed',
-  width:'calc( 100% - 51px)',
-  height:'calc( 100% - 20px)',
-  backgroundColor:'#FFF',
-  padding:'1em',
-  left:50,
-  overflowY:'auto',
-  overflowX:'hidden',
-  zIndex:10
+  position: 'absolute',
+  width: 'calc( 100% - 51px)',
+  height: 'calc( 100% - 20px)',
+  backgroundColor: '#FFF',
+  padding: '1em',
+  left: 50,
+  overflowY: 'auto',
+  overflowX: 'hidden',
+  zIndex: 10
 };
 
 const itemsStyle = {
@@ -64,7 +64,7 @@ const historyElementStyle = {
   width: 'auto',
   height: '2em',
   lineHeight: '2em',
-  textAlign:'center',
+  textAlign: 'center',
   borderRadius: '1em',
   display: 'inline-block',
   cursor: 'pointer',
@@ -76,14 +76,13 @@ const historyElementStyle = {
 };
 
 export default class CatalogList extends Component {
-
   constructor(props, context) {
     super(props);
 
     let page = props.state.catalog.page;
     let currentCategory = context.catalog.getCategory(page);
     let categoriesToDisplay = currentCategory.categories;
-    let elementsToDisplay = currentCategory.elements.filter(element => element.info.visibility ? element.info.visibility.catalog : true );
+    let elementsToDisplay = currentCategory.elements.filter(element => (element.info.visibility ? element.info.visibility.catalog : true));
 
     this.state = {
       categories: currentCategory.categories,
@@ -93,27 +92,25 @@ export default class CatalogList extends Component {
     };
   }
 
-  flattenCategories( categories ) {
+  flattenCategories(categories) {
     let toRet = [];
 
-    for( let x = 0; x < categories.length; x++ )
-    {
+    for (let x = 0; x < categories.length; x++) {
       let curr = categories[x];
-      toRet = toRet.concat( curr.elements );
-      if( curr.categories.length ) toRet = toRet.concat( this.flattenCategories ( curr.categories ) );
+      toRet = toRet.concat(curr.elements);
+      if (curr.categories.length) toRet = toRet.concat(this.flattenCategories(curr.categories));
     }
 
     return toRet;
   }
 
-  matcharray( text ) {
-
-    let array = this.state.elements.concat( this.flattenCategories( this.state.categories ) );
+  matcharray(text) {
+    let array = this.state.elements.concat(this.flattenCategories(this.state.categories));
 
     let filtered = [];
 
-    if( text != '' ) {
-      let regexp = new RegExp( text, 'i');
+    if (text != '') {
+      let regexp = new RegExp(text, 'i');
       for (let i = 0; i < array.length; i++) {
         if (regexp.test(array[i].info.title)) {
           filtered.push(array[i]);
@@ -125,10 +122,9 @@ export default class CatalogList extends Component {
       matchString: text,
       matchedElements: filtered
     });
-  };
+  }
 
-  select( element ) {
-
+  select(element) {
     switch (element.prototype) {
       case 'lines':
         this.context.linesActions.selectToolDrawingLine(element.name);
@@ -145,16 +141,14 @@ export default class CatalogList extends Component {
   }
 
   render() {
-
     let page = this.props.state.catalog.page;
     let currentCategory = this.context.catalog.getCategory(page);
     let categoriesToDisplay = currentCategory.categories;
-    let elementsToDisplay = currentCategory.elements.filter(element => element.info.visibility ? element.info.visibility.catalog : true );
+    let elementsToDisplay = currentCategory.elements.filter(element => (element.info.visibility ? element.info.visibility.catalog : true));
 
     let breadcrumbComponent = null;
 
     if (page !== 'root') {
-
       let breadcrumbsNames = [];
 
       this.props.state.catalog.path.forEach(pathName => {
@@ -164,49 +158,53 @@ export default class CatalogList extends Component {
         });
       });
 
-      breadcrumbsNames.push({name: currentCategory.label, action: ''});
+      breadcrumbsNames.push({ name: currentCategory.label, action: '' });
 
-      breadcrumbComponent = (<CatalogBreadcrumb names={breadcrumbsNames}/>);
+      breadcrumbComponent = <CatalogBreadcrumb names={breadcrumbsNames} />;
     }
 
     let pathSize = this.props.state.catalog.path.size;
 
-    let turnBackButton = pathSize > 0 ? (
-      <CatalogTurnBackPageItem key={pathSize} page={this.context.catalog.categories[this.props.state.catalog.path.get(pathSize - 1)]}/>) : null;
-
+    let turnBackButton = pathSize > 0 ? <CatalogTurnBackPageItem key={pathSize} page={this.context.catalog.categories[this.props.state.catalog.path.get(pathSize - 1)]} /> : null;
 
     let selectedHistory = this.props.state.get('selectedElementsHistory');
-    let selectedHistoryElements = selectedHistory.map( ( el, ind ) =>
-      <div key={ind} style={historyElementStyle} title={el.name} onClick={() => this.select(el) }>{el.name}</div>
-    );
+    let selectedHistoryElements = selectedHistory.map((el, ind) => (
+      <div key={ind} style={historyElementStyle} title={el.name} onClick={() => this.select(el)}>
+        {el.name}
+      </div>
+    ));
 
     return (
-      <ContentContainer width={this.props.width} height={this.props.height} style={{...containerStyle, ...this.props.style}}>
+      <ContentContainer width={this.props.width} height={this.props.height} style={{ ...containerStyle, ...this.props.style }}>
         <ContentTitle>{this.context.translator.t('Catalog')}</ContentTitle>
         {breadcrumbComponent}
         <div style={searchContainer}>
           <span style={searchText}>{this.context.translator.t('Search Element')}</span>
-          <input type="text" style={searchInput} onChange={( e ) => { this.matcharray( e.target.value ); } }/>
+          <input
+            type="text"
+            style={searchInput}
+            onChange={e => {
+              this.matcharray(e.target.value);
+            }}
+          />
         </div>
-        { selectedHistory.size ?
+        {selectedHistory.size ? (
           <div style={historyContainer}>
             <span>{this.context.translator.t('Last Selected')}</span>
             {selectedHistoryElements}
-          </div> :
-          null
-        }
+          </div>
+        ) : null}
         <div style={itemsStyle}>
-          {
-            this.state.matchString === '' ? [
-              turnBackButton,
-              categoriesToDisplay.map(cat => <CatalogPageItem key={cat.name} page={cat} oldPage={currentCategory}/>),
-              elementsToDisplay.map(elem => <CatalogItem key={elem.name} element={elem}/>)
-            ] :
-            this.state.matchedElements.map(elem => <CatalogItem key={elem.name} element={elem}/>)
-          }
+          {this.state.matchString === ''
+            ? [
+                turnBackButton,
+                categoriesToDisplay.map(cat => <CatalogPageItem key={cat.name} page={cat} oldPage={currentCategory} />),
+                elementsToDisplay.map(elem => <CatalogItem key={elem.name} element={elem} />)
+              ]
+            : this.state.matchedElements.map(elem => <CatalogItem key={elem.name} element={elem} />)}
         </div>
       </ContentContainer>
-    )
+    );
   }
 }
 
